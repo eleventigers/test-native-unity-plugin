@@ -1,0 +1,57 @@
+name: Build Native Plugin
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+#        os: [windows-latest, ubuntu-latest, macos-latest]
+#        os: [ubuntu-latest]
+        os: [macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up CMake
+        run: |
+          sudo apt-get install cmake -y  # For Linux
+          brew install cmake            # For macOS
+          choco install cmake           # For Windows
+
+      - name: Set up Conan
+        run: |
+          pip install conan
+          conan profile new default --detect
+          conan profile update settings.compiler.libcxx=libstdc++11 default
+
+      - name: Set up Emscripten (for WebAssembly)
+        if: matrix.os == 'ubuntu-latest'  # Only run on Linux for WebAssembly
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          source ./emsdk_env.sh
+
+      - name: Build plugin
+        run: |
+          mkdir build
+          cd build
+          conan install ..
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            emcmake cmake ..
+            emmake make
+          else
+            cmake ..
+            cmake --build .
+          fi
+          cpack .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: my_plugin_${{ matrix.os }}
+          path: build/bin/

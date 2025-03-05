@@ -1,0 +1,5 @@
+[requires]
+# Add dependencies here (e.g., zlib/1.2.11)
+
+[generators]
+cmake
