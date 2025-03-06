@@ -196,9 +196,9 @@ jobs:
           unzip "$zipfile" -d temp
           echo "Contents of temp directory after extraction:"
           ls -R temp
-          cp -r temp/Plugins/* merged/Plugins/
-          cp -r temp/Runtime/* merged/Runtime/
-          cp -r temp/Documentation/* merged/Documentation/
+          cp -r temp/*/Plugins/* merged/Plugins/
+          cp -r temp/*/Runtime/* merged/Runtime/
+          cp -r temp/*/Documentation/* merged/Documentation/
           rm -rf temp
         done
 
