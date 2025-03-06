@@ -172,9 +172,11 @@ jobs:
     needs: build
     steps:
     - name: Download platform-specific ZIP files
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: artifacts
+        pattern: myplugin-*
+        merge-multiple: true
 
     - name: Create merged directory structure
       run: |
