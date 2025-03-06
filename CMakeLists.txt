@@ -61,7 +61,7 @@ install(DIRECTORY unity/ DESTINATION Runtime FILES_MATCHING PATTERN "*.cs")
 install(FILES README.md DESTINATION Documentation)
 
 # Install samples
-# install(DIRECTORY samples/ DESTINATION Samples)
+install(DIRECTORY samples/ DESTINATION Samples)
 
 # Use CPack for packaging
 include(InstallRequiredSystemLibraries)

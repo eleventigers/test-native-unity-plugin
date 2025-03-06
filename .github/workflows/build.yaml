@@ -188,6 +188,7 @@ jobs:
         mkdir -p merged/Plugins
         mkdir -p merged/Runtime
         mkdir -p merged/Documentation
+        mkdir -p merged/Samples
 
     - name: Extract and merge platform-specific libraries
       run: |
@@ -199,6 +200,7 @@ jobs:
           cp -r temp/*/Plugins/* merged/Plugins/
           cp -r temp/*/Runtime/* merged/Runtime/
           cp -r temp/*/Documentation/* merged/Documentation/
+          cp -r temp/*/Samples/* merged/Samples/
           rm -rf temp
         done
 
