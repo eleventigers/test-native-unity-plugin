@@ -202,7 +202,7 @@ jobs:
         zip -r ../MyUnityPlugin-AllPlatforms.zip .
 
     - name: Upload final merged ZIP file
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: MyUnityPlugin-AllPlatforms
         path: MyUnityPlugin-AllPlatforms.zip
