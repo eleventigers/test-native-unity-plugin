@@ -1,15 +1,17 @@
 cmake_minimum_required(VERSION 3.10)
 project(MyUnityPlugin)
 
-# Set output directory for compiled libraries
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Include the Conan-generated toolchain file
+include(conan_toolchain.cmake)
 
-# Include Conan for dependency management
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+# Find dependencies using CMake's find_package
+# find_package(MyDependency REQUIRED)  # Replace with your actual dependency
 
-# Add your C source files
-add_library(my_plugin SHARED src/my_plugin.c include/my_plugin.h)
+# Add the "include" directory to the include path for this library
+target_include_directories(my_plugin PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+# Specify the source files for the library
+add_library(my_plugin SHARED src/my_plugin.c)
 
 # Platform-specific configurations
 if (WIN32)
@@ -41,7 +43,7 @@ install(TARGETS my_plugin
         RUNTIME DESTINATION bin)
 
 # Include headers for packaging
-install(FILES include/my_plugin.h DESTINATION include)
+install(DIRECTORY include/ DESTINATION include)
 
 # Use CPack for packaging
 include(InstallRequiredSystemLibraries)

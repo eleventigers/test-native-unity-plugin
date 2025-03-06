@@ -64,7 +64,12 @@ fi
 
 #docker login docker.io
 
+mkdir -p ./.cache/artifacts
+chmod -R 755 ./.cache/artifacts
+
 # Run the GitHub Actions workflow
-act -P ubuntu-latest=nektos/act-environments-ubuntu:18.04 \
-    -P windows-latest=-self-hosted \
-    -P macos-latest=-self-hosted
+act -P macos-latest=-self-hosted \
+#    --container-options "-v $(pwd)/.cache/act-artifacts:artifacts" \
+    --action-cache-path "$(pwd)/.cache" \
+    --verbose \
+    --rm=false
