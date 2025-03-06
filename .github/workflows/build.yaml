@@ -46,21 +46,34 @@ jobs:
           # Remove existing CMake if it's too old
           sudo apt-get remove -y cmake
 
-          # Download the ARM build of CMake
-          CMAKE_VERSION="3.25.0"
-          wget https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-aarch64.tar.gz
+          # Detect architecture (x86_64 or aarch64)
+          ARCH=$(uname -m)
+          CMAKE_VERSION="3.25.0"  # Specify the version you need (>= 3.15)
+
+          if [[ "$ARCH" == "x86_64" ]]; then
+            echo "Detected x86_64 architecture"
+            CMAKE_ARCH="linux-x86_64"
+          elif [[ "$ARCH" == "aarch64" ]]; then
+            echo "Detected ARM architecture (aarch64)"
+            CMAKE_ARCH="linux-aarch64"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
+
+          # Download the correct CMake binary
+          wget https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-$CMAKE_ARCH.tar.gz
 
           # Extract the tarball
-          tar -xzf cmake-$CMAKE_VERSION-linux-aarch64.tar.gz
+          tar -xzf cmake-$CMAKE_VERSION-$CMAKE_ARCH.tar.gz
 
           # Install CMake to /usr/local without overwriting existing directories
           echo "Installing CMake to /usr/local..."
-          sudo cp -r cmake-$CMAKE_VERSION-linux-aarch64/bin /usr/local/
-          sudo cp -r cmake-$CMAKE_VERSION-linux-aarch64/share /usr/local/
-          sudo cp -r cmake-$CMAKE_VERSION-linux-aarch64/doc /usr/local/
+          sudo cp -r cmake-$CMAKE_VERSION-$CMAKE_ARCH/bin /usr/local/
+          sudo cp -r cmake-$CMAKE_VERSION-$CMAKE_ARCH/share /usr/local/
 
           # Clean up
-          rm -rf cmake-$CMAKE_VERSION-linux-aarch64.tar.gz cmake-$CMAKE_VERSION-linux-aarch64
+          rm -rf cmake-$CMAKE_VERSION-$CMAKE_ARCH.tar.gz cmake-$CMAKE_VERSION-$CMAKE_ARCH
 
           # Verify CMake installation
           cmake --version
