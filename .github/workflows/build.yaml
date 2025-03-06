@@ -178,6 +178,11 @@ jobs:
         pattern: myplugin-*
         merge-multiple: true
 
+    - name: Debug artifacts directory
+      run: |
+        echo "Contents of artifacts directory:"
+        ls -R artifacts
+
     - name: Create merged directory structure
       run: |
         mkdir -p merged/Plugins
@@ -186,20 +191,31 @@ jobs:
 
     - name: Extract and merge platform-specific libraries
       run: |
-        for os in ubuntu-latest windows-latest macos-latest; do
-          if [[ -d "artifacts/myplugin-$os" ]]; then
-            unzip artifacts/myplugin-$os/MyUnityPlugin-*.zip -d temp
-            cp -r temp/Plugins/* merged/Plugins/
-            cp -r temp/Runtime/* merged/Runtime/
-            cp -r temp/Documentation/* merged/Documentation/
-            rm -rf temp
-          fi
+        for zipfile in artifacts/*.zip; do
+          echo "Extracting $zipfile..."
+          unzip "$zipfile" -d temp
+          echo "Contents of temp directory after extraction:"
+          ls -R temp
+          cp -r temp/Plugins/* merged/Plugins/
+          cp -r temp/Runtime/* merged/Runtime/
+          cp -r temp/Documentation/* merged/Documentation/
+          rm -rf temp
         done
+
+    - name: Debug merged directory
+      run: |
+        echo "Contents of merged directory before zipping:"
+        ls -R merged
 
     - name: Create final ZIP file
       run: |
         cd merged
         zip -r ../MyUnityPlugin-AllPlatforms.zip .
+
+    - name: Debug final ZIP file
+      run: |
+        echo "Contents of final ZIP file:"
+        unzip -l MyUnityPlugin-AllPlatforms.zip
 
     - name: Upload final merged ZIP file
       uses: actions/upload-artifact@v4
