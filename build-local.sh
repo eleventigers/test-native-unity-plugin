@@ -69,7 +69,6 @@ chmod -R 755 ./.cache/artifacts
 
 # Run the GitHub Actions workflow
 act -P macos-latest=-self-hosted \
-#    --container-options "-v $(pwd)/.cache/act-artifacts:artifacts" \
     --action-cache-path "$(pwd)/.cache" \
     --verbose \
     --rm=false

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(MyUnityPlugin)
 
 # Include the Conan-generated toolchain file
@@ -7,11 +7,11 @@ include(conan_toolchain.cmake)
 # Find dependencies using CMake's find_package
 # find_package(MyDependency REQUIRED)  # Replace with your actual dependency
 
-# Add the "include" directory to the include path for this library
-target_include_directories(my_plugin PUBLIC ${CMAKE_SOURCE_DIR}/include)
-
 # Specify the source files for the library
 add_library(my_plugin SHARED src/my_plugin.c)
+
+# Add the "include" directory to the include path for this library
+target_include_directories(my_plugin PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 # Platform-specific configurations
 if (WIN32)

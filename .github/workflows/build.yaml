@@ -17,7 +17,7 @@ jobs:
       - name: Install Act dependencies
         if: ${{ env.ACT }} && matrix.os == 'ubuntu-latest'
         run: |
-          apt-get update && apt-get install sudo curl build-essential git -y
+          apt-get update && apt-get install sudo curl wget build-essential ninja-build git -y
 
       - name: Set up Python and pip
         if: matrix.os == 'ubuntu-latest'
@@ -42,7 +42,28 @@ jobs:
 
       - name: Set up CMake
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install cmake -y
+        run: |
+          # Remove existing CMake if it's too old
+          sudo apt-get remove -y cmake
+
+          # Download the ARM build of CMake
+          CMAKE_VERSION="3.25.0"
+          wget https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-aarch64.tar.gz
+
+          # Extract the tarball
+          tar -xzf cmake-$CMAKE_VERSION-linux-aarch64.tar.gz
+
+          # Install CMake to /usr/local without overwriting existing directories
+          echo "Installing CMake to /usr/local..."
+          sudo cp -r cmake-$CMAKE_VERSION-linux-aarch64/bin /usr/local/
+          sudo cp -r cmake-$CMAKE_VERSION-linux-aarch64/share /usr/local/
+          sudo cp -r cmake-$CMAKE_VERSION-linux-aarch64/doc /usr/local/
+
+          # Clean up
+          rm -rf cmake-$CMAKE_VERSION-linux-aarch64.tar.gz cmake-$CMAKE_VERSION-linux-aarch64
+
+          # Verify CMake installation
+          cmake --version
 
       - name: Set up CMake
         if: matrix.os == 'windows-latest'
@@ -87,7 +108,17 @@ jobs:
 
           # Use the appropriate Conan profile for the platform
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            conan install .. --profile=../conan/linux.profile --build=missing
+            ARCH=$(uname -m)
+            if [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
+              echo "Detected ARM Linux (aarch64/arm64)"
+              conan install .. --profile=../conan/linux_arm.profile --build=missing
+            elif [[ "$ARCH" == "x86_64" ]]; then
+              echo "Detected x86_64 Linux"
+              conan install .. --profile=../conan/linux_x86_64.profile --build=missing
+            else
+              echo "Unsupported architecture: $ARCH"
+              exit 1
+            fi
           elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             conan install .. --profile=../conan/windows.profile --build=missing
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
@@ -110,13 +141,14 @@ jobs:
           cpack .
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ !env.ACT }}
         with:
           name: my_plugin_${{ matrix.os }}
           path: build/**.zip
 
       - name: Save artifacts
+        if: ${{ env.ACT }}
         run: |
           mkdir -p artifacts
           cp -r build/ artifacts/
