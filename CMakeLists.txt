@@ -45,6 +45,8 @@ install(TARGETS my_plugin
 # Include headers for packaging
 install(DIRECTORY include/ DESTINATION include)
 
+install(DIRECTORY unity/ DESTINATION unity FILES_MATCHING PATTERN "*.cs")
+
 # Use CPack for packaging
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "ZIP")
