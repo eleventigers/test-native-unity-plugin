@@ -4,9 +4,6 @@ project(MyUnityPlugin)
 # Include the Conan-generated toolchain file
 include(conan_toolchain.cmake)
 
-# Find dependencies using CMake's find_package
-# find_package(MyDependency REQUIRED)  # Replace with your actual dependency
-
 # Specify the source files for the library
 add_library(my_plugin SHARED src/my_plugin.c)
 
@@ -37,15 +34,34 @@ elseif (UNIX AND NOT APPLE)
 endif()
 
 # Install the library for packaging
-install(TARGETS my_plugin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin)
+if (WIN32)
+    install(TARGETS my_plugin
+            RUNTIME DESTINATION Plugins/Windows
+            LIBRARY DESTINATION Plugins/Windows
+            ARCHIVE DESTINATION Plugins/Windows)
+elseif (ANDROID)
+    install(TARGETS my_plugin
+            LIBRARY DESTINATION Plugins/Android/libs/${CMAKE_ANDROID_ARCH_ABI})
+elseif (APPLE)
+    install(TARGETS my_plugin
+            LIBRARY DESTINATION Plugins/macOS
+            BUNDLE DESTINATION Plugins/macOS)
+elseif (UNIX AND NOT APPLE)
+    install(TARGETS my_plugin
+            LIBRARY DESTINATION Plugins/Linux)
+endif()
 
 # Include headers for packaging
-install(DIRECTORY include/ DESTINATION include)
+install(DIRECTORY include/ DESTINATION Plugins/include)
 
-install(DIRECTORY unity/ DESTINATION unity FILES_MATCHING PATTERN "*.cs")
+# Install C# scripts
+install(DIRECTORY unity/ DESTINATION Runtime FILES_MATCHING PATTERN "*.cs")
+
+# Install documentation
+install(FILES README.md DESTINATION Documentation)
+
+# Install samples
+# install(DIRECTORY samples/ DESTINATION Samples)
 
 # Use CPack for packaging
 include(InstallRequiredSystemLibraries)
@@ -53,4 +69,6 @@ set(CPACK_GENERATOR "ZIP")
 set(CPACK_PACKAGE_NAME "MyUnityPlugin")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_PACKAGE_VENDOR "MyCompany")
+set(CPACK_PACKAGE_DESCRIPTION "A cross-platform Unity plugin")
+set(CPACK_PACKAGE_CONTACT "support@mycompany.com")
 include(CPack)
