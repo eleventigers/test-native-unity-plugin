@@ -165,7 +165,7 @@ jobs:
     steps:
     - name: Install dependencies
       run: |
-        apt-get update && apt-get install unzip zip -y
+        apt-get update && apt-get install sudo unzip zip -y
 
     - name: Download platform-specific ZIP files
       uses: actions/download-artifact@v4
