@@ -71,4 +71,5 @@ chmod -R 755 ./.cache/artifacts
 act -P macos-latest=-self-hosted \
     --action-cache-path "$(pwd)/.cache" \
     --verbose \
+    --artifact-server-path="$(pwd)/.cache/artifacts" \
     --rm=false

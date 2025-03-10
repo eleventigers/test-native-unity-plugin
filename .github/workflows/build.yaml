@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
 #        os: [windows-latest, ubuntu-latest, macos-latest]
-        os: [macos-latest,  ubuntu-latest]
+        os: [macos-latest]
 
     steps:
       - name: Checkout repository
@@ -155,22 +155,18 @@ jobs:
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ !env.ACT }}
         with:
           name: myplugin-${{ matrix.os }}
           path: build/MyUnityPlugin-*.zip
-
-      - name: Save artifacts
-        if: ${{ env.ACT }}
-        run: |
-          mkdir -p artifacts
-          cp -r build/ artifacts/
-          ls -la artifacts
 
   merge:
     runs-on: ubuntu-latest
     needs: build
     steps:
+    - name: Install dependencies
+      run: |
+        apt-get update && apt-get install unzip zip -y
+
     - name: Download platform-specific ZIP files
       uses: actions/download-artifact@v4
       with:
